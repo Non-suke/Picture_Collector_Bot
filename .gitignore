@@ -1,4 +1,7 @@
 mailadress.csv
 *.docx
 開発計画.txt
+.env
+*.json
+*.pickle
 

@@ -7,10 +7,12 @@ import json
 import pickle
 import copy
 from googleapiclient.discovery import build
+from google_API_credential import get_credential
 
-def search_image(api_key,cse_key,search_word,page_limit=10):
+def search_image(search_word,creds,cse_key,page_limit=10):
     # Google Customサーチ結果を取得
-    s = build("customsearch","v1",developerKey = api_key)
+
+    s = build("customsearch","v1",credentials=creds)
     response = []
     startIndex = 1
 
@@ -36,8 +38,10 @@ def search_image(api_key,cse_key,search_word,page_limit=10):
 
     today = datetime.today().strftime("%Y%m%d%H%M%S")
 
+    """
     with open('./data/google_api_response/'+today+'.pickle', mode='wb') as f:
         pickle.dump(response, f)
+    """
 
     for nRes in range(len(response)):
         if len(response[nRes]['items']) > 0:
@@ -77,13 +81,5 @@ def find_new_image_and_update(search_result):
 
     return new_items
 
-if __name__ == "__main__":
-    GOOGLE_API_KEY = input("API key:")
-    CUSTOM_SEARCH_ENGINE_ID = input("search engine id:")
-    KEYWORD = input("search word:")
-
-    search_result = search_image(GOOGLE_API_KEY,CUSTOM_SEARCH_ENGINE_ID,KEYWORD,page_limit=2)
-    new_items = find_new_image_and_update(search_result)
-    print(new_items)
 
 
