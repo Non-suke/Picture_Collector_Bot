@@ -10,7 +10,7 @@ def main():
     MY_MAIL_ADDRESS = keyring.get_password(NAMESPACE,"MY_MAIL_ADDRESS")
     RECEIVER_MAIL_ADDRESS = keyring.get_password(NAMESPACE,"RECEIVER_MAIL_ADDRESS")
 
-    search_words = ['sierra cup','シエラカップ']
+    search_words = ['sierra cup','シエラカップ',"シェラカップ"]
     mail_subject = "新着シエラカップのお知らせ"
 
     search_result = []
@@ -20,8 +20,7 @@ def main():
     new_items = find_new_image_and_update(search_result)
 
     if new_items:
-        msg_html = create_html_format(new_items)
-        message = create_message(MY_MAIL_ADDRESS,RECEIVER_MAIL_ADDRESS,mail_subject,msg_html)
+        message = create_message(MY_MAIL_ADDRESS,RECEIVER_MAIL_ADDRESS,mail_subject,new_items)
         send_message(MY_MAIL_ADDRESS,message,GOOGLE_API_CREDS)
         print("The email has been sent.")
     else:
