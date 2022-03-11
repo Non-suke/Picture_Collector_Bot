@@ -5,6 +5,9 @@ from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+from email.mime.image import MIMEImage
+import urllib.error
+import urllib.request
 
 def create_html_format(new_items):
     """Create html mail format
@@ -30,8 +33,8 @@ def create_html_format(new_items):
         
         msg_html += "<p style='text-align:center'>" + new_items[i]["title"] + "</p>"
         
-        msg_html += "<p style='text-align:cente'><a href=" + new_items[i]["page_url"] + ">"
-        msg_html += "<image width = 300 src=" + new_items[i]["image_url"] + "></a></p>"
+        msg_html += "<div style='text-align:cente'><a href=" + new_items[i]["page_url"] + ">"
+        msg_html += "<p><image width = 300 src='cid:image" + str(i+1) + "'></p></a></div>"
         msg_html += "<p style='text-align:center'>" + new_items[i]["page_url"] + "</p>"
         
         
@@ -41,23 +44,66 @@ def create_html_format(new_items):
     
     return msg_html
 
-def create_message(sender, to, subject, msg_html):
+def create_message(sender, to, subject, new_items):
     """Create a message for an email.
 
     Args:
         sender: Email address of the sender.
         to: Email address of the receiver.
         subject: The subject of the email message.
-        msg_html:The html of the email message.
+        new_items:
+        Return value of google_custum_search_API.find_new_image_and_update.
+        List of dictionary.Each dict has 4 keys(page_url,image_url,title,search_date).
 
     Returns:
         An object containing a base64url encoded email object.
     """
-    
-    message = MIMEText(msg_html,"html")
+
+    #create html format
+    msg_html = """
+        <html>
+            <head></head>
+            <body>
+                <h2 style="text-align:center">新しく見つかったシエラカップ</h2>
+                <h3 style="text-align:center">画像をクリックすると掲載ページへジャンプします</h3>
+        """
+
+    for i in range(len(new_items)):
+        #msg_text += new_items[i]["title"] + "\n" + new_items[i]["page_url"] + "\n\n"
+        
+        msg_html += "<p style='text-align:center'>" + new_items[i]["title"] + "</p>"
+        
+        msg_html += "<div style='text-align:center'><a href=" + new_items[i]["page_url"] + ">"
+        msg_html += "<p><img width = 300 src= cid:image" + str(i+1) + "></p></a></div>"
+        msg_html += "<p style='text-align:center'>" + new_items[i]["page_url"] + "</p>"
+        
+        
+        msg_html += "<br>"
+
+    msg_html += "</body></html>"
+
+    #create MIME object
+    message = MIMEMultipart("related")
     message['to'] = to
     message['from'] = sender
     message['subject'] = subject
+
+    message.attach(MIMEText(msg_html,"html"))
+
+    for i in range(len(new_items)):
+        try:
+            with urllib.request.urlopen(new_items[i]["image_url"]) as web_file:
+                image_data = web_file.read()
+        except urllib.error.URLError as e:
+            print(e)
+        
+        img = MIMEImage(image_data)
+        img.add_header('Content-Id', '<image'+str(i+1)+'>')
+        img.add_header('X-Attachment-Id', 'image'+str(i+1))
+        img.add_header("Content-Disposition", "inline",filename = 'image'+str(i+1))
+        img.add_header("Content-Transfer-Encoding","base64")
+        message.attach(img)
+
     return {'raw': base64.urlsafe_b64encode(message.as_bytes()).decode()}
 
 
