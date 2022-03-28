@@ -4,4 +4,7 @@ mailadress.csv
 .env
 *.json
 *.pickle
-
+*.html
+*.jpeg
+*.jpg
+*.png

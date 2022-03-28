@@ -1,5 +1,6 @@
 import os.path
 import base64
+import re
 from google.auth.transport.requests import Request
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
@@ -91,11 +92,16 @@ def create_message(sender, to, subject, new_items):
     message.attach(MIMEText(msg_html,"html"))
 
     for i in range(len(new_items)):
-        try:
-            with urllib.request.urlopen(new_items[i]["image_url"]) as web_file:
-                image_data = web_file.read()
-        except urllib.error.URLError as e:
-            print(e)
+        _, ext = os.path.splitext(new_items[i]["image_url"])
+        if re.search(ext,"jpeg|jpg|jpe|png"):
+            try:
+                with urllib.request.urlopen(new_items[i]["image_url"]) as web_file:
+                    image_data = web_file.read()
+            except urllib.error.URLError as e:
+                print(e)
+        else:
+            with open("picture_not_found.jpg","rb") as f:
+                image_data = f.read()
         
         img = MIMEImage(image_data)
         img.add_header('Content-Id', '<image'+str(i+1)+'>')
