@@ -93,17 +93,30 @@ def create_message(sender, to, subject, new_items):
 
     for i in range(len(new_items)):
         _, ext = os.path.splitext(new_items[i]["image_url"])
-        if re.search(ext,"jpeg|jpg|jpe|png"):
+        if re.search("jpeg|jpg|jpe|png",ext):
             try:
                 with urllib.request.urlopen(new_items[i]["image_url"]) as web_file:
                     image_data = web_file.read()
             except urllib.error.URLError as e:
                 print(e)
+                with open("picture_not_found.jpg","rb") as f:
+                    image_data = f.read()
         else:
             with open("picture_not_found.jpg","rb") as f:
                 image_data = f.read()
-        
-        img = MIMEImage(image_data)
+
+        #TO DO:例外の処理が美しくない
+        try:
+            img = MIMEImage(image_data,_subtype = "jpeg")
+        except:
+            print('MIMEImage(image_data,_subtype = "jpeg"でエラー発生')
+            print("image_urlは\n",new_items[i]["image_url"])
+
+            #代わりの画像を用意
+            with open("picture_not_found.jpg","rb") as f:
+                image_data = f.read()
+            img = MIMEImage(image_data,_subtype = "jpeg")
+
         img.add_header('Content-Id', '<image'+str(i+1)+'>')
         img.add_header('X-Attachment-Id', 'image'+str(i+1))
         img.add_header("Content-Disposition", "inline",filename = 'image'+str(i+1))
