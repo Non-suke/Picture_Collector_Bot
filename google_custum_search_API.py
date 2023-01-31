@@ -38,10 +38,10 @@ def search_image(search_word,creds,cse_key,page_limit=10):
 
     today = datetime.today().strftime("%Y%m%d%H%M%S")
 
-    """
+    
     with open('./data/google_api_response/'+today+'.pickle', mode='wb') as f:
         pickle.dump(response, f)
-    """
+    
 
     for nRes in range(len(response)):
         if len(response[nRes]['items']) > 0:

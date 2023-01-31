@@ -8,3 +8,6 @@ mailadress.csv
 *.jpeg
 *.jpg
 *.png
+__pycache__/
+base 64テスト.py
+*test.py

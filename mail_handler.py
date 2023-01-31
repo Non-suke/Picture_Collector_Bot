@@ -3,9 +3,6 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
 def send_mail(new_items):
-    #CSVを開く
-
-    #
     smtp_host = 'smtp.gmail.com'
     smtp_port = 465
     username = input("address:")
